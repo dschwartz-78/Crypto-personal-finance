@@ -1,0 +1,5 @@
+Date,Origin funds,Origin amount,Origin currency,Transaction type,Transaction rate,Transaction id,Destination funds,Destination amount,Destination currency,Fee amount,Fee currency,Fee amount EUR,Equivalent value EUR,Comments
+28/11/2020,CoinBase,  100,EUR,in,1.1,,Binance, 109,BAT,1,EUR,1,100,
+28/11/2020,Boursorama,100,EUR,in,1.1,,CoinBase,109,BAT,1,EUR,1,100,
+27/11/2020,Boursorama,100,EUR,in,1.1,,CoinBase,109,BTC,1,EUR,1,100,
+27/11/2020,Boursorama,100,EUR,in,1.1,,Uphold,  109,BTC,1,EUR,1,100,
