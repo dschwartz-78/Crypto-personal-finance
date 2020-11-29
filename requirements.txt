@@ -1,0 +1,18 @@
+
+# array computing
+numpy==1.19.4
+
+# time series analysis
+pandas==1.1.4
+
+# Extensions to the standard Python datetime module
+python-dateutil==2.8.1
+
+# timezone calculations
+pytz==2020.4
+
+# Python 2 and 3 compatibility library
+six==1.15.0
+
+# For Pandas to read Excel files
+xlrd==1.2.0
