@@ -10,8 +10,6 @@ def processor(df):
 
 
 
-
-
 data = pd.read_csv("../intermediate/test.csv")
 
 df = pd.DataFrame(data)
