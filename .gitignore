@@ -133,7 +133,7 @@ input/coinbase/
 !input/coinbase/Coinbase-history-example2.csv
 
 input/uphold/
-!input/uphold/UpHold-history-example.csv
+!input/uphold/Uphold-history-example.csv
 
 input/binance/
 !input/binance/Binance-history-example.csv
@@ -145,4 +145,4 @@ input/crypto.com/
 !input/crypto.com/Crypto.com-history-example.csv
 
 input/kucoin/
-!input/kucoin/kucoin-history-example.csv
+!input/kucoin/KuCoin-history-example.csv
