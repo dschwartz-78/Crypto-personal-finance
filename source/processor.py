@@ -1,88 +1,126 @@
 import pandas as pd
 import yaml
+import numpy
 
 
-def load_preferences():
-    # Load default values
-    preferences = {
-        'indicators': [
-            {'salary': 2000},
-            {'bonnat': 5}
-        ],
-        'output': [
-            {'skin': 'skin-2020'}
-        ],
-    }
-
-    # Read YAML preferences file
-    pref_file = '../input/preferences.yaml'
-    with open(pref_file) as file:
-        preferences = yaml.load(file, Loader=yaml.FullLoader)
-
-    return preferences
+class Processor:
+    platforms = numpy.ndarray
+    preferences = {}
+    df = pd.DataFrame()
 
 
-def load_data():
-    data = pd.read_csv("../intermediate/test.csv")
-    df = pd.DataFrame(data)
-    return df
+    def load_preferences():
+        # Load default values
+        preferences = {
+            'indicators': [
+                {'salary': 2000},
+                {'bonnat': 5}
+            ],
+            'output': [
+                {'skin': 'skin-2020'}
+            ],
+        }
+
+        # Read YAML preferences file
+        pref_file = '../input/preferences.yaml'
+        with open(pref_file) as file:
+            preferences = yaml.load(file, Loader=yaml.FullLoader)
+
+        self.preferences = preferences
+
+    def load_data():
+        data = pd.read_csv("../intermediate/test.csv")
+        df = pd.DataFrame(data)
+        self.df = df
+
+    def calculate_fee():
+        # Frais globaux (sur toutes les plateformes)
+        feeSum = df['Fee amount EUR'].sum()
+        feeMean = df['Fee amount EUR'].mean()
+
+        # Frais totaux par plateforme
+        feeSumPlatform = {}
+        for platform in platforms:
+            feeSumPlatform[platform] = df.loc[df['Destination platform'] == platform, 'Fee amount EUR'].sum()
+
+        # Frais moyens par plateforme
+        feeMeanPlatform = {}
+        for platform in platforms:
+            feeMeanPlatform[platform] = df.loc[df['Destination platform'] == platform, 'Fee amount EUR'].mean()
+
+        fee = {
+            'sum': feeSum,
+            'mean': feeMean,
+            'feeSumPlatform': feeSumPlatform,
+            'meanPlatform': feeMeanPlatform,
+        }
+
+        return fee
 
 
-def calculate_fee():
-    # Frais globaux (sur toutes les plateformes)
-    feeSum = df['Fee amount EUR'].sum()
-    feeMean = df['Fee amount EUR'].mean()
+    def calculate_gain():
 
-    # Frais totaux par plateforme
-    feeSumPlatform = {}
-    for platform in platforms:
-        feeSumPlatform[platform] = df.loc[df['Destination platform'] == platform, 'Fee amount EUR'].sum()
-
-    # Frais moyens par plateforme
-    feeMeanPlatform = {}
-    for platform in platforms:
-        feeMeanPlatform[platform] = df.loc[df['Destination platform'] == platform, 'Fee amount EUR'].mean()
-
-    fee = {
-        'sum': feeSum,
-        'mean': feeMean,
-        'feeSumPlatform': feeSumPlatform,
-        'meanPlatform': feeMeanPlatform,
-    }
-
-    return fee
+        return gain
 
 
-def calculate_gain():
+    def calculate_equivalents():
+        equivalents = self.preferences['equivalents']
+        for equivalent in equivalents:
+            for equivalent_name, equivalent_value in equivalent.items():
+                equivalent_performance[equivalent_name] = gain / equivalent_value
+                kpiSalaryPlatform = {}
+                for platform in platforms:
+                    kpiSalaryPlatform = gainPlatform[platform] / salaire
 
-    return gain
 
 
-def calculate_indicator():
+        salaire = self.preferences['indicators']['salary']
+        kpiSalary = gain / salaire
+        kpiSalaryPlatform = {}
+        for platform in platforms:
+            kpiSalaryPlatform = gainPlatform[platform] / salaire
 
-    return kpi
+        bonnat = 5
+        kpiBonnat = gain / bonnat
+        for platform in platforms:
+            kpiSalaryPlatform = gainPlatform[platform] / salaire
+
+        kpiReward = df.loc[df['Destination platform'] == 'CoinBase', 'Fee amount EUR'].sum()
+
+        kpi = {
+            'salary': {
+                'total': kpiSalary,
+                kpiSalaryPlatform,
+            },
+            'bonnat': kpiBonnat,
+            'reward': kpiReward,
+        }
+
+        return kpi
 
 
-def processor(df):
-    """Compute indicators from raw data"""
+    def processor(df):
+        """Compute indicators from raw data"""
 
-    preferences = load_preferences()
+        load_preferences()
 
-    df = load_data()
+        load_data()
 
-    fee = calculate_fee()
-    gain = calculate_gain()
-    indicator = calculate_indicator()
+        self.platforms = pd.unique(df['Destination platform'])
 
-    renderData = {
-        'data': data,
-        'fee': fee,
-        'gain': gain,
-        'kpi': indicator,
-        'kpiTopic': kpiTopic,
-    }
+        fee = calculate_fee()
+        gain = calculate_gain()
+        indicator = calculate_indicator()
 
-    return renderData
+        renderData = {
+            'data': data,
+            'fee': fee,
+            'gain': gain,
+            'kpi': indicator,
+            'kpiTopic': kpiTopic,
+        }
+
+        return renderData
 
 
 
