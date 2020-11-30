@@ -16,3 +16,6 @@ six==1.15.0
 
 # For Pandas to read Excel files
 xlrd==1.2.0
+
+# Read YAML preferences file
+pyyaml==5.3.1

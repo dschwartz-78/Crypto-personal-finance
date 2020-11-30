@@ -1,3 +1,6 @@
-indicators
+indicators:
 - salary: 2000
-- Bonnat: 5
+- bonnat: 5
+
+output:
+- skin: skin-2020

@@ -16,7 +16,7 @@ import pprint
 # Parameters
 
 coinbase_column_actions = {
-    # Rename existing columns
+  # Rename existing columns
   "Transaction Type": {
       "action" : "rename",
       "value" : "Transaction Type",
