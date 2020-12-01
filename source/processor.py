@@ -4,12 +4,34 @@ import numpy
 
 
 class Processor:
+    """Class to process the history DataFrame"""
+
+    # Create attributes (to be filled during computation)
     platforms = numpy.ndarray
     preferences = {}
     df = pd.DataFrame()
+    fee = {}
+    gain = {}
+    eq_perf = {}
+    perf_topic = {}
+
+    # Static variables
+    topics = {
+        'payment': ['BTC', 'ETH', 'XRP', 'BCH', 'LTC', 'LINK', 'EOS', 'XLM', 'ADA',
+                    'XMR', 'TRX', 'DASH', 'ETC', 'ZEC', 'BAT', 'ALGO', 'ICX', 'WAVES',
+                    'OMG', 'GNO', 'MLN', 'NANO', 'DOGE', 'USDT', 'DAI', 'SC', 'LSK',
+                    'XTZ', 'ATOM', 'REP'],
+        'infrastructure': ['ETH', 'ETC', 'ICX', 'EOS', 'OMG', 'ADA', 'TRX', 'ALGO',
+                           'WAVES', 'LSK', 'XTZ', 'ATOM'],
+        'financial': ['GNO', 'MLN', 'REP', 'COMP', 'LEND'],
+        'service': ['LINK', 'SC', 'STORJ'],
+        'entertainment': ['BAT'],
+    }
 
 
     def load_preferences():
+        """Load values from preferences file input/preferences.yaml"""
+
         # Load default values
         preferences = {
             'indicators': [
@@ -29,74 +51,75 @@ class Processor:
         self.preferences = preferences
 
     def load_data():
+        """Load transaction data as DataFrame"""
         data = pd.read_csv("../intermediate/test.csv")
         df = pd.DataFrame(data)
         self.df = df
 
     def calculate_fee():
-        # Frais globaux (sur toutes les plateformes)
+        """Calculate (sum and mean) fees, globally and per platform"""
+
+        # Global fees (all platforms)
         feeSum = df['Fee amount EUR'].sum()
         feeMean = df['Fee amount EUR'].mean()
 
-        # Frais totaux par plateforme
+        # Total fees per platform
         feeSumPlatform = {}
         for platform in platforms:
             feeSumPlatform[platform] = df.loc[df['Destination platform'] == platform, 'Fee amount EUR'].sum()
 
-        # Frais moyens par plateforme
+        # Mean fees per platform
         feeMeanPlatform = {}
         for platform in platforms:
             feeMeanPlatform[platform] = df.loc[df['Destination platform'] == platform, 'Fee amount EUR'].mean()
 
-        fee = {
+        self.fee = {
             'sum': feeSum,
             'mean': feeMean,
             'feeSumPlatform': feeSumPlatform,
             'meanPlatform': feeMeanPlatform,
         }
 
-        return fee
+
+    def originalValueCalc(df, platform=None, crypto=None):
+        """Compute original investment"""
+
+        selectionDeposit = df['Origin currency'] == 'EUR'
+        selectionWithdrawal = df['Destination currency'] == 'EUR'
+
+        if platform:
+            selectionDeposit = selectionDeposit & (df['Destination platform'] == platform)
+            selectionWithdrawal = selectionWithdrawal & (df['Origin platform'] == platform)
+
+        if crypto:
+            selectionDeposit = selectionDeposit & (df['Destination currency'] == crypto)
+            selectionWithdrawal = selectionWithdrawal & (df['Origin currency'] == crypto)
+
+        valueDeposit = df.loc[selectionDeposit, 'Origin amount'].sum()
+        valueWithdrawal = df.loc[selectionWithdrawal, 'Destination amount'].sum()
+        originalValue = valueDeposit - valueWithdrawal
+
+        return originalValue
 
 
     def calculate_gain():
+        """Calculate gain"""
 
-        return gain
+        self.gain = {1}
 
 
     def calculate_equivalents():
         equivalents = self.preferences['equivalents']
         for equivalent in equivalents:
-            for equivalent_name, equivalent_value in equivalent.items():
-                equivalent_performance[equivalent_name] = gain / equivalent_value
-                kpiSalaryPlatform = {}
+            for eq_name, eq_value in equivalent.items():
+                self.eq_perf[eq_name]['total'] = self.gain{'total'} / eq_value
                 for platform in platforms:
-                    kpiSalaryPlatform = gainPlatform[platform] / salaire
+                    self.eq_perf[eq_name][platform] = self.gain[platform] / eq_value
 
 
-
-        salaire = self.preferences['indicators']['salary']
-        kpiSalary = gain / salaire
-        kpiSalaryPlatform = {}
-        for platform in platforms:
-            kpiSalaryPlatform = gainPlatform[platform] / salaire
-
-        bonnat = 5
-        kpiBonnat = gain / bonnat
-        for platform in platforms:
-            kpiSalaryPlatform = gainPlatform[platform] / salaire
-
-        kpiReward = df.loc[df['Destination platform'] == 'CoinBase', 'Fee amount EUR'].sum()
-
-        kpi = {
-            'salary': {
-                'total': kpiSalary,
-                kpiSalaryPlatform,
-            },
-            'bonnat': kpiBonnat,
-            'reward': kpiReward,
-        }
-
-        return kpi
+    def perf_by_topic():
+        for topic, cryptos in topics.items():
+            kpiTopic[topic] = originalValueCalc(df, cryptos=cryptos)
 
 
     def processor(df):
@@ -108,9 +131,10 @@ class Processor:
 
         self.platforms = pd.unique(df['Destination platform'])
 
-        fee = calculate_fee()
-        gain = calculate_gain()
-        indicator = calculate_indicator()
+        calculate_fee()
+        calculate_gain()
+        calculate_equivalents()
+        perf_by_topic()
 
         renderData = {
             'data': data,
@@ -120,7 +144,10 @@ class Processor:
             'kpiTopic': kpiTopic,
         }
 
-        return renderData
+        return {
+            self.fee,
+            self.gain,
+        }
 
 
 
@@ -171,12 +198,42 @@ fee = {
 # Gains
 #------
 
-def originalValueCalc(df, platform=None, cryptos=None):
+def originalValueCalc(df, platform=None, crypto=None):
     """Compute origial investment"""
     # Todo : Add case where currency is not EUR and platform origin is not a single bank
+
+    selectionDeposit = df['Origin currency'] == 'EUR'
+    selectionWithdrawal = df['Destination currency'] == 'EUR'
+
     if platform:
-        # toto : correct syntax
-        originalValue = df.loc[df['Origin platform'] == platform & df['Origin currency'] == cryptos, 'Origin amount'].sum()
+        selectionDeposit = selectionDeposit & (df['Destination platform'] == platform)
+        selectionWithdrawal = selectionWithdrawal & (df['Origin platform'] == platform)
+
+    if crypto:
+        selectionDeposit = selectionDeposit & (df['Destination currency'] == crypto)
+        selectionWithdrawal = selectionWithdrawal & (df['Origin currency'] == crypto)
+
+    valueDeposit = df.loc[selectionDeposit, 'Origin amount'].sum()
+    valueWithdrawal = df.loc[selectionWithdrawal, 'Destination amount'].sum()
+    originalValue = valueDeposit - valueWithdrawal
+
+    return originalValue
+
+
+
+
+
+
+
+    if platform:
+        selection = df['Destination platform'] == platform & df['Destination currency'] == cryptos
+        valueDeposit = df.loc[selection, 'Destination amount'].sum()
+
+        selection = df['Origin platform'] == platform & df['Origin currency'] == cryptos
+        valueWithdrawal = df.loc[selection, 'Origin amount'].sum()
+
+        originalValue = valueDeposit - valueWithdrawal
+
     else:
         originalValue = df.loc[df['Origin platform'] == 'Boursorama', 'Origin amount'].sum()
     return originalValue
