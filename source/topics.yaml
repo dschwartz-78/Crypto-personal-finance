@@ -1,0 +1,60 @@
+payment:
+  - BTC
+  - ETH
+  - XRP
+  - BCH
+  - LTC
+  - LINK
+  - EOS
+  - XLM
+  - ADA
+  - XMR
+  - TRX
+  - DASH
+  - ETC
+  - ZEC
+  - BAT
+  - ALGO
+  - ICX
+  - WAVES
+  - OMG
+  - GNO
+  - MLN
+  - NANO
+  - DOGE
+  - USDT
+  - DAI
+  - SC
+  - LSK
+  - XTZ
+  - ATOM
+  - REP
+
+infrastructure:
+  - ETH
+  - ETC
+  - ICX
+  - EOS
+  - OMG
+  - ADA
+  - TRX
+  - ALGO
+  - WAVES
+  - LSK
+  - XTZ
+  - ATOM
+
+financial:
+  - GNO
+  - MLN
+  - REP
+  - COMP
+  - LEND
+
+service:
+  - LINK
+  - SC
+  - STORJ
+
+entertainment:
+  - BAT

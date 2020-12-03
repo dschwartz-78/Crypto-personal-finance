@@ -1,6 +1,6 @@
 equivalents:
-- salary: 2000
-- bonnat: 5
+  - salary: 2000
+  - bonnat: 5
 
 output:
-- skin: skin-2020
+  - skin: skin-2020
