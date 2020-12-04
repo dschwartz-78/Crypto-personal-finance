@@ -146,7 +146,6 @@ class Processor:
 
         gain = balance - investment
         performance = (balance - investment) / investment * 100
-        performance = round(performance, 2)     # round 2 digits after comma
 
         # Gain by platform
         # todo : traiter le cas où la somme d'un investissement est nulle (par ex. quitté
@@ -167,7 +166,6 @@ class Processor:
         performancePlatform = {}
         for platform in self.platforms:
             performancePlatform[platform] = (balancePlatform[platform] - investmentPlatform[platform]) / investmentPlatform[platform] * 100
-            performancePlatform[platform] = round(performancePlatform[platform], 2)
 
         # Gain by crypto
         investmentCrypto = {}
@@ -221,21 +219,17 @@ class Processor:
         # pprint(self.gain)
         perf_topic = {}
         for topic, cryptos in topics.items():
-            print(topic)
-            perf_topic_tmp = numpy.ndarray([])
-            weight = numpy.ndarray([])
-            print(str(weight))
+            perf_topic[topic] = {}
+            perf_topic_tmp = numpy.ndarray(0)
+            weight = numpy.ndarray(0)
             for crypto in cryptos:
-                print('  ' + crypto)
-                print('    ' + str(weight))
                 if crypto in self.cryptos:
                     weight = numpy.append(weight, self.investment['investmentCrypto'][crypto])
-                    perf_topic_tmp = numpy.append(perf_topic_tmp, self.gain['performanceCrypto'][crypto])
-                    print('    ' + str(weight))
-            print('  topic weight : ' + str(weight))
-            print('  topic perf_topic_tmp : ' + str(perf_topic_tmp))
-            perf_topic[topic] = numpy.sum(perf_topic_tmp * weight / weight.sum())
-            pprint(perf_topic[topic])
+                    gain = self.gain['performanceCrypto'][crypto]
+                    perf_topic_tmp = numpy.append(perf_topic_tmp, gain)
+            gain = numpy.sum(perf_topic_tmp * weight / weight.sum())
+            perf_topic[topic]['gain'] = gain
+            perf_topic[topic]['performance'] = numpy.sum(perf_topic_tmp * weight / weight.sum())
 
         self.perf_topic = perf_topic
 
@@ -254,20 +248,16 @@ class Processor:
         self.calculate_gain()
         self.calculate_equivalents()
         self.perf_by_topic()
-        print('##############')
-        pprint(self.perf_topic)
-        print('##############')
-        quit()
 
         renderData = {
-            'data': self.df,
+            # 'data': self.df,
             'fee': self.fee,
             'gain': self.gain,
             'eq_perf': self.eq_perf,
             'perf_topic': self.perf_topic,
         }
 
-        pprint.pprint(renderData)
+        pprint(renderData)
 
         return renderData
 
