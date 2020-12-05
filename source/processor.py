@@ -3,14 +3,15 @@ import yaml
 import numpy
 # for debugging
 from pprint import pprint
+import json
 
 
 class Processor:
     """Class to process the history DataFrame"""
 
     # Create attributes (to be filled during different computation steps)
-    platforms = numpy.ndarray
-    cryptos = numpy.ndarray
+    platforms = []
+    cryptos = []
     preferences = {}
     topics = {}
     df = pd.DataFrame()
@@ -76,18 +77,18 @@ class Processor:
         """Calculate (sum and mean) fees, globally and per platform"""
 
         # Global fees (all platforms)
-        feeSum = self.df['Fee amount EUR'].sum()
-        feeMean = self.df['Fee amount EUR'].mean()
+        feeSum = float(self.df['Fee amount EUR'].sum())
+        feeMean = float(self.df['Fee amount EUR'].mean())
 
         # Total fees per platform
         feeSumPlatform = {}
         for platform in self.platforms:
-            feeSumPlatform[platform] = self.df.loc[self.df['Destination platform'] == platform, 'Fee amount EUR'].sum()
+            feeSumPlatform[platform] = float(self.df.loc[self.df['Destination platform'] == platform, 'Fee amount EUR'].sum())
 
         # Mean fees per platform
         feeMeanPlatform = {}
         for platform in self.platforms:
-            feeMeanPlatform[platform] = self.df.loc[self.df['Destination platform'] == platform, 'Fee amount EUR'].mean()
+            feeMeanPlatform[platform] = float(self.df.loc[self.df['Destination platform'] == platform, 'Fee amount EUR'].mean())
 
         self.fee = {
             'sum': feeSum,
@@ -114,8 +115,8 @@ class Processor:
             selectionDeposit = selectionDeposit & (df['Destination currency'] == crypto)
             selectionWithdrawal = selectionWithdrawal & (df['Origin currency'] == crypto)
 
-        valueDeposit = df.loc[selectionDeposit, 'Origin amount EUR'].sum()
-        valueWithdrawal = df.loc[selectionWithdrawal, 'Origin amount EUR'].sum()
+        valueDeposit = float(df.loc[selectionDeposit, 'Origin amount EUR'].sum())
+        valueWithdrawal = float(df.loc[selectionWithdrawal, 'Origin amount EUR'].sum())
         investment = valueDeposit - valueWithdrawal
 
         return investment
@@ -240,8 +241,8 @@ class Processor:
 
         self.load_data()
 
-        self.platforms = pd.unique(self.df['Destination platform'])
-        self.cryptos = pd.unique(self.df['Destination currency'])
+        self.platforms = pd.unique(self.df['Destination platform']).tolist()
+        self.cryptos = pd.unique(self.df['Destination currency']).tolist()
 
         # Keep the execution order
         self.calculate_fee()
@@ -250,7 +251,7 @@ class Processor:
         self.perf_by_topic()
 
         renderData = {
-            # 'data': self.df,
+            'data': self.df.to_dict(),
             'fee': self.fee,
             'gain': self.gain,
             'eq_perf': self.eq_perf,
@@ -258,6 +259,10 @@ class Processor:
         }
 
         pprint(renderData)
+
+        jsonData = json.dumps(renderData, indent=4)
+        with open("renderData.json","w") as f:
+            f.write(jsonData)
 
         return renderData
 
