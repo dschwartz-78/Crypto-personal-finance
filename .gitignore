@@ -127,6 +127,9 @@ dmypy.json
 # MacOS
 .DS_Store
 
+# Virtual environment
+cpf-env/
+
 # Crypto history
 input/coinbase/
 !input/coinbase/Coinbase-history-example.csv
