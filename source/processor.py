@@ -261,7 +261,7 @@ class Processor:
         pprint(renderData)
 
         jsonData = json.dumps(renderData, indent=4)
-        with open("renderData.json","w") as f:
+        with open("output/renderData.json","w") as f:
             f.write(jsonData)
 
         return renderData

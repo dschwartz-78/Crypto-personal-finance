@@ -19,3 +19,6 @@ xlrd==1.2.0
 
 # Read YAML preferences file
 pyyaml==5.3.1
+
+# HTML template
+Jinja2==2.11.2
