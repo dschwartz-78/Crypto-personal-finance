@@ -1,0 +1,15 @@
+"You can use this transaction report to inform your likely tax obligations. For US customers, Sells, Converts, and Rewards Income, and Coinbase Earn transactions are taxable events. For final tax obligations, please consult your tax advisor."
+
+
+
+Transactions
+User,mail@address.com,8765hash876579
+
+Timestamp,Transaction Type,Asset,Quantity Transacted,EUR Spot Price at Transaction,EUR Subtotal,EUR Total (inclusive of fees),EUR Fees,Notes
+2020-02-13T09:52:42Z,Receive,BTC,1.1,9352.58,"","","",Received 1.1 BTC from Coinbase Referral
+2020-02-13T09:47:35Z,Buy,ETH,1.1,241.64,100.1,1.1,1.1,Bought 1.1 ETH for €100.1 EUR
+2020-02-13T09:56:50Z,Send,ETH,1.1,240.01,"","","",Sent 1.1 ETH to 0xE26781938563710874628488aC8a98BD8C0373C8f0
+2020-03-06T23:14:47Z,Buy,ETH,1.1,215.87,99.1,1000.1,1.0,"Bought 1.1 ETH for €1,000.10 EUR"
+2020-03-06T23:29:58Z,Send,ETH,1.1,216.14,"","","",Sent 1.1 ETH to 0xE267846718475973640581aC8a98BD8C0373C8f0
+2020-03-13T17:36:48Z,Buy,ETH,1.1,115.78,99.1,100.1,1.00,Bought 1.1 ETH for €100.1 EUR
+2020-03-13T17:47:47Z,Send,ETH,1.1,112.30,"","","",Sent 1.1 ETH to 0xE26784678f874932074209aC8a98BD8C0373C8f0
