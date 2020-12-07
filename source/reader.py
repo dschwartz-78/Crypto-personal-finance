@@ -10,7 +10,7 @@ import glob
 import csv
 import numpy as np
 import pandas as pd
-import pprint
+from pprint import pprint
 
 
 # Parameters
@@ -19,37 +19,37 @@ coinbase_column_actions = {
   # Rename existing columns
   "Transaction Type": {
       "action" : "rename",
-      "value" : "Transaction Type",
+      "name" : "Transaction Type",
       "order" : 1,
   },
   "Asset": {
       "action" : "rename",
-      "value" : "Destination currency",
+      "name" : "Destination currency",
       "order" : 2,
   },
   "Quantity Transacted": {
       "action" : "rename",
-      "value" : "Destination amount",
+      "name" : "Destination amount",
   },
   "EUR Spot Price at Transaction": {
       "action" : "rename",
-      "value" : "Exchange rate",
+      "name" : "Exchange rate",
   },
   "EUR Subtotal": {
       "action" : "rename",
-      "value" : "EUR Subtotal",
+      "name" : "EUR Subtotal",
   },
   "EUR Total (inclusive of fees)": {
       "action" : "rename",
-      "value" : "Equivalent value EUR",
+      "name" : "Equivalent value EUR",
   },
   "EUR Fees": {
       "action" : "rename",
-      "value" : "Fee amount EUR",
+      "name" : "Fee amount EUR",
   },
   "Notes": {
       "action" : "rename",
-      "value" : "Notes",
+      "name" : "Notes",
   },
   # Add new columns
   "Origin platform": {
@@ -72,6 +72,64 @@ coinbase_column_actions = {
   },
   # Drop columns
 }
+
+binance_column_actions = {
+  # Rename existing columns
+  "Market": {
+      "action" : "function",
+      "name" : "binance_transform_market",
+      "order" : 1,
+  },
+  "Type": {
+      "action" : "rename",
+      "name" : "Transaction type",
+      "order" : 2,
+  },
+  "Price": {
+      "action" : "rename",
+      "name" : "Transaction rate",
+  },
+  "Amount": {
+      "action" : "rename",
+      "name" : "Origin amount",
+  },
+  "Total": {
+      "action" : "rename",
+      "name" : "Destination amount",
+  },
+  "Fee": {
+      "action" : "rename",
+      "name" : "Fee amount",
+  },
+  "Fee Coin": {
+      "action" : "rename",
+      "name" : "Fee currency",
+  },
+  # Add new columns
+  "Origin platform": {
+      "action" : "create",
+  },
+  "Destination platform": {
+      "action" : "create",
+  },
+  "Fee EUR": {
+      "action" : "create",
+  },
+  "Equivalent value EUR": {
+      "action" : "create",
+  },
+  # Drop columns
+}
+
+binance_renaming = {
+    "Type": "Transaction type",
+    "Price": "Transaction rate",
+    "Amount": "Origin amount",
+    "Total": "Destination amount",
+    "Fee": "Fee amount",
+    "Fee Coin": "Fee currency",
+}
+
 
 column_order = [
     "Origin platform",
@@ -149,52 +207,42 @@ def read_coinbase_file(csvFile):
 
 
 # Binance
-def rename_binance_column():
-    binance_column_rename = {}
-    for column, attr in binance_column_actions.items():
-        if attr['action'] == 'rename':
-            binance_column_rename[column] = attr['value']
-    # binance_column_rename = {
-    #   "Amount": "Origin amount",
-    #   "Market": "Origin currency",
-    #   "Type": "Transaction type",
-    #   "Price": "Transaction rate",
-    #   "Total": "Destination amount",
-    #   "Fee": "Fee amount",
-    #   "Fee Coin": "Fee currency",
-    #   "Notes": "Notes",
-    # }
-    return binance_column_rename
+# def rename_binance_column():
+#     binance_column_rename = {}
+#     for column, attr in binance_column_actions.items():
+#         if attr['action'] == 'rename':
+#             binance_column_rename[column] = attr['value']
+#     # binance_column_rename = {
+#     #   "Amount": "Origin amount",
+#     #   "Market": "Origin currency",
+#     #   "Type": "Transaction type",
+#     #   "Price": "Transaction rate",
+#     #   "Total": "Destination amount",
+#     #   "Fee": "Fee amount",
+#     #   "Fee Coin": "Fee currency",
+#     #   "Notes": "Notes",
+#     # }
+#     return binance_column_rename
 
-def create_binance_column():
-    binance_column_create = []
-    for column, attr in binance_column_actions.items():
-        if attr['action'] == 'create':
-            binance_column_create.append(column)
-    # binance_column_create = [
-    #     "Origin platform",
-    #     "Destination platform",
-    #     'Destination currency',
-    #     "Transaction ID",
-    #     "Fee amount EUR",
-    #     "Equivalent value EUR",
-    # ]
-
-    return binance_column_create
+# def create_binance_column():
+#     binance_column_create = []
+#     for column, attr in binance_column_actions.items():
+#         if attr['action'] == 'create':
+#             binance_column_create.append(column)
+#     # binance_column_create = [
+#     #     "Origin platform",
+#     #     "Destination platform",
+#     #     'Destination currency',
+#     #     "Transaction ID",
+#     #     "Fee amount EUR",
+#     #     "Equivalent value EUR",
+#     # ]
+#
+#     return binance_column_create
 
 def read_binance_file(excelFile):
-    df = pd.read_excel(excelFile)               # read Excel file
-    print('1 *****')
-    print(df)
-    df.index = df[df.columns.values[0]]         # set first column as index
-    print('2 *****')
-    print(df)
-    temporalDataLabel = df.columns.values[0]    # get first column name (containing temporal data)
-    print('3 *****')
-    print(df)
-    df.drop(columns=['Date(UTC)', 'Market'])          # drop first column (as it has been set as index)
-    print('4 *****')
-    print(df)
+    # read Excel file
+    df = pd.read_excel(excelFile)
     return df
 
 
@@ -210,14 +258,64 @@ def standardise_coinbase_df(df):
     print(df)
     return df
 
+def binance_create_currency_columns(df):
+    for index, row in df.iterrows():
+        if row['Transaction type'] == 'SELL':
+            print(row)
+            fee_currency = row['Fee currency']
+            nDest = len(fee_currency)
+            nTot = len(row['Market'])
+            print(str(nDest) + ' / ' + str(nTot))
+            orig_currency = row['Market'][-nDest:]
+            dest_currency = row['Market'][:nTot-nDest]
+            print(orig_currency == fee_currency)
+            df['Origin currency'] = orig_currency
+            df['Destination currency'] = dest_currency
+            print('orig currency : ' + str(orig_currency))
+            print('dest currency : ' + str(dest_currency))
+
+            quit()
+
+        if row['Transaction type'] == 'BUY':
+            print(row)
+            fee_currency = row['Fee currency']
+            nDest = len(fee_currency)
+            nTot = len(row['Market'])
+            print(str(nDest) + ' / ' + str(nTot))
+            dest_currency = row['Market'][:nDest]
+            orig_currency = row['Market'][nDest:]
+            print(dest_currency == fee_currency)
+            df['Origin currency'] = orig_currency
+            df['Destination currency'] = dest_currency
+            print('orig currency : ' + str(orig_currency))
+            print('dest currency : ' + str(dest_currency))
+
+
+
+    df['Origin amount'] = origin_amount
+    df['Destination amount'] = destination_amount
+
+    df.drop(columns=['Market'])
+    return df
+
 def standardise_binance_df(df):
-    print(df)
-    for i in np.arange(len(df.columns.values)):
-        label = df.columns.values[i]
-        if coinbase_column_actions[label]["action"] == "rename":
-            df.columns.values[i] = coinbase_column_actions[label]["value"]
-        # df.columns.values[column] = coinbase_column_mapping(column)
-    print(df)
+    # set first column as index
+    print(df.columns.values)
+    temporalDataLabel = df.columns.values[0]
+    df = df.set_index(temporalDataLabel)
+
+    # Renaming
+    df = df.rename(columns=binance_renaming)
+    # pprint(df)
+
+    # Column creation
+    df['Origin platform'] = 'bite'
+    df['Transaction id'] = ''
+    df['Destination platform'] = 'Binance'
+
+    # Column creation with computational steps
+    df = binance_create_currency_columns(df)
+
     return df
 
 
@@ -247,7 +345,7 @@ def read_coinbase_history():
 def read_binance_history():
     # Change directory form /source to /input/binance
     path = os.getcwd()                  # get current directory
-    path = os.path.dirname(path)        # move one folder up
+    # path = os.path.dirname(path)        # move one folder up
     path = path + '/input/binance/'     # move to Binance folder
 
     # Read every xlsx file in the /input/binance folder
@@ -260,8 +358,9 @@ def read_binance_history():
         print("    Path : " + file)
         df = read_binance_file(file)
         print("    Convert to Data Frame")
-        # df = standardise_binance_df(df)
-        # print(df)
+        df = standardise_binance_df(df)
+        # pprint(df)
+        quit()
         df_list.append(df)
     print("  Total " + str(nFiles) + " Binance files")
     return df_list
