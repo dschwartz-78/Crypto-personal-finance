@@ -259,48 +259,44 @@ def standardise_coinbase_df(df):
     return df
 
 def binance_create_currency_columns(df):
+    # todo : make these operations matrix-wise
+    nEntries = df.shape[0]
+    # df['Origin currency'] = np.ndarray(nEntries)
+    # df['Destination currency'] = np.ndarray(nEntries)
+    df['Origin currency'] = df['Market']
+    df['Destination currency'] = df['Market']
+    df
     for index, row in df.iterrows():
+        fee_currency = row['Fee currency']
+        nDest = len(fee_currency)
+        nTot = len(row['Market'])
+
         if row['Transaction type'] == 'SELL':
-            print(row)
-            fee_currency = row['Fee currency']
-            nDest = len(fee_currency)
-            nTot = len(row['Market'])
-            print(str(nDest) + ' / ' + str(nTot))
-            orig_currency = row['Market'][-nDest:]
-            dest_currency = row['Market'][:nTot-nDest]
-            print(orig_currency == fee_currency)
-            df['Origin currency'] = orig_currency
-            df['Destination currency'] = dest_currency
-            print('orig currency : ' + str(orig_currency))
-            print('dest currency : ' + str(dest_currency))
+            orig_currency = row['Market'][:nTot-nDest]
+            dest_currency = row['Market'][-nDest:]
 
-            quit()
+        elif row['Transaction type'] == 'BUY':
+            orig_currency = row['Market'][:nDest]
+            dest_currency = row['Market'][nDest:]
 
-        if row['Transaction type'] == 'BUY':
-            print(row)
-            fee_currency = row['Fee currency']
-            nDest = len(fee_currency)
-            nTot = len(row['Market'])
-            print(str(nDest) + ' / ' + str(nTot))
-            dest_currency = row['Market'][:nDest]
-            orig_currency = row['Market'][nDest:]
-            print(dest_currency == fee_currency)
-            df['Origin currency'] = orig_currency
-            df['Destination currency'] = dest_currency
-            print('orig currency : ' + str(orig_currency))
-            print('dest currency : ' + str(dest_currency))
+        else:
+            print("####################################################")
+            print("Transaction type is neither BUY nor SELL ! ")
+            orig_currency = 0
+            dest_currency = 0
 
+        print(index, orig_currency)
+        df[index, ['Origin currency']] = orig_currency
+        df[index, ['Destination currency']] = dest_currency
 
+    df = df.drop(columns=['Market'])
+    print(df)
+    quit()
 
-    df['Origin amount'] = origin_amount
-    df['Destination amount'] = destination_amount
-
-    df.drop(columns=['Market'])
     return df
 
 def standardise_binance_df(df):
     # set first column as index
-    print(df.columns.values)
     temporalDataLabel = df.columns.values[0]
     df = df.set_index(temporalDataLabel)
 
@@ -315,6 +311,13 @@ def standardise_binance_df(df):
 
     # Column creation with computational steps
     df = binance_create_currency_columns(df)
+
+    # Re-order columns : au choix
+    df.columns.values
+    df = df[column_order]
+    df.columns.values
+    df.reindex(columns=column_order)
+    df.columns.values
 
     return df
 
